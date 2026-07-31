@@ -127,7 +127,6 @@ def parse_scores(raw: str) -> dict:
 # ---------------------------------------------------------------------------
 
 def load_local_model(model_id: str):
-    """Load Qwen 32B in 4-bit for Kaggle/desktop GPU runs. Requires CUDA + bitsandbytes."""
     try:
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
@@ -138,6 +137,8 @@ def load_local_model(model_id: str):
     if not torch.cuda.is_available():
         print("ERROR: No CUDA device found. Use --backend api for CPU/MPS inference.", file=sys.stderr)
         sys.exit(1)
+
+    torch.cuda.empty_cache()
 
     print(f"Loading {model_id} in 4-bit...")
     bnb_config = BitsAndBytesConfig(
@@ -150,7 +151,8 @@ def load_local_model(model_id: str):
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         quantization_config=bnb_config,
-        device_map="balanced",   # change from "auto" to "balanced"
+        device_map="auto",
+        low_cpu_mem_usage=True,
         trust_remote_code=True,
     )
     model.eval()
