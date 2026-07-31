@@ -151,7 +151,8 @@ def load_local_model(model_id: str):
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         quantization_config=bnb_config,
-        device_map="balanced",
+        device_map="auto",
+        max_memory={0: "13GiB", 1: "13GiB"},
         low_cpu_mem_usage=True,
         trust_remote_code=True,
     )
