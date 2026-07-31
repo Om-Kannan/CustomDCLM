@@ -49,9 +49,6 @@ from typing import Any
 import requests
 from tqdm import tqdm
 
-from dotenv import load_dotenv
-load_dotenv()
-
 
 # ---------------------------------------------------------------------------
 # Prompt
@@ -153,7 +150,7 @@ def load_local_model(model_id: str):
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         quantization_config=bnb_config,
-        device_map="auto",      # spreads across both T4s automatically
+        device_map="balanced",   # change from "auto" to "balanced"
         trust_remote_code=True,
     )
     model.eval()
