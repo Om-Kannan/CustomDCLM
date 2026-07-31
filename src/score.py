@@ -233,7 +233,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output",    default="data/scored.jsonl")
     parser.add_argument("--backend",   default="local", choices=["local", "api"],
                         help="'local' = 4-bit GPU inference; 'api' = OpenAI-compatible endpoint")
-    parser.add_argument("--model",     default="Qwen/Qwen2.5-32B-Instruct",
+    parser.add_argument("--model", default="Qwen/Qwen2.5-14B-Instruct",
                         help="Model ID (HF hub name for local; provider model name for api)")
     parser.add_argument("--api-key",   default=os.getenv("SCORE_API_KEY"))
     parser.add_argument("--base-url",  default=os.getenv("SCORE_BASE_URL", "https://api.together.xyz/v1"))
