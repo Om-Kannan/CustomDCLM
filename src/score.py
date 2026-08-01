@@ -161,7 +161,7 @@ def load_local_model(model_id: str):
     return tokenizer, model
 
 
-def score_local(tokenizer, model, doc: dict, max_new_tokens: int = 256) -> dict:
+def score_local(tokenizer, model, doc: dict, max_new_tokens: int = 128) -> dict:
     import torch
 
     messages = [
