@@ -190,7 +190,7 @@ def load_student_model(model_id: str):
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         quantization_config=bnb_config,
-        device_map="auto",
+        device_map={"": torch.cuda.current_device()},
         low_cpu_mem_usage=True,
         trust_remote_code=True,
     )
