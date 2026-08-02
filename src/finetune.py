@@ -237,6 +237,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
+    # Force single-GPU execution on the first visible CUDA device.
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
     input_path = Path(args.input)
     if not input_path.exists():
         print(f"ERROR: scored corpus not found at {input_path}", file=sys.stderr)
@@ -319,10 +322,10 @@ def main() -> None:
         bf16=torch.cuda.is_bf16_supported(),
         fp16=not torch.cuda.is_bf16_supported(),
         logging_steps=20,
-        eval_strategy="epoch",
+        eval_strategy="no",
         save_strategy="epoch",
         save_total_limit=2,
-        load_best_model_at_end=True,
+        load_best_model_at_end=False,
         report_to="none",
         dataloader_num_workers=2,
         remove_unused_columns=False,
