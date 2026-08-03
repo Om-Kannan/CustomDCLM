@@ -176,24 +176,23 @@ def tokenize_example(example: dict, tokenizer, max_length: int = 1024) -> dict:
 def load_student_model(model_id: str):
     print(f"Loading {model_id} in 4-bit for QLoRA...")
 
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16,
+    # bnb_config = BitsAndBytesConfig(
+    #     load_in_4bit=True,
+    #     bnb_4bit_use_double_quant=True,
+    #     bnb_4bit_quant_type="nf4",
+    #     bnb_4bit_compute_dtype=torch.bfloat16,
+    # )
+
+    model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    torch_dtype=torch.bfloat16,
+    device_map="auto",
+    trust_remote_code=True,
     )
 
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        quantization_config=bnb_config,
-        device_map="auto",
-        low_cpu_mem_usage=True,
-        trust_remote_code=True,
-    )
 
     model = prepare_model_for_kbit_training(model)
 
@@ -238,7 +237,7 @@ def main() -> None:
     args = parse_args()
 
     # Force single-GPU execution on the first visible CUDA device.
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 
     input_path = Path(args.input)
     if not input_path.exists():
@@ -313,8 +312,8 @@ def main() -> None:
     training_args = TrainingArguments(
         output_dir=str(output_dir),
         num_train_epochs=args.epochs,
-        per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=args.batch_size,
+        per_device_train_batch_size=8,
+        per_device_eval_batch_size=2,
         gradient_accumulation_steps=4,
         learning_rate=args.lr,
         lr_scheduler_type="cosine",
@@ -323,8 +322,9 @@ def main() -> None:
         fp16=not torch.cuda.is_bf16_supported(),
         logging_steps=20,
         eval_strategy="no",
-        save_strategy="epoch",
-        save_total_limit=2,
+        save_strategy="steps",
+        save_steps=25,
+        save_total_limit=4,
         load_best_model_at_end=False,
         report_to="none",
         dataloader_num_workers=2,
