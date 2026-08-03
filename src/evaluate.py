@@ -146,8 +146,14 @@ def parse_scores(raw: str) -> dict | None:
             parsed = json.loads(match.group(0))
         except json.JSONDecodeError:
             return None
+
+    # Guard against model returning non-dict JSON
+    if not isinstance(parsed, dict):
+        return None
+
     if not all(k in parsed for k in DIMENSIONS):
         return None
+
     return {dim: int(parsed[dim]) for dim in DIMENSIONS}
 
 
