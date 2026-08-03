@@ -190,7 +190,7 @@ def load_student_model(model_id: str):
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         quantization_config=bnb_config,
-        device_map={"": torch.cuda.current_device()},
+        device_map="auto",
         low_cpu_mem_usage=True,
         trust_remote_code=True,
     )
@@ -238,7 +238,7 @@ def main() -> None:
     args = parse_args()
 
     # Force single-GPU execution on the first visible CUDA device.
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 
     input_path = Path(args.input)
     if not input_path.exists():
