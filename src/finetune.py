@@ -173,28 +173,51 @@ def tokenize_example(example: dict, tokenizer, max_length: int = 1024) -> dict:
 # Model loading
 # ---------------------------------------------------------------------------
 
+# def load_student_model(model_id: str):
+#     print(f"Loading {model_id} in 4-bit for QLoRA...")
+
+#     # bnb_config = BitsAndBytesConfig(
+#     #     load_in_4bit=True,
+#     #     bnb_4bit_use_double_quant=True,
+#     #     bnb_4bit_quant_type="nf4",
+#     #     bnb_4bit_compute_dtype=torch.bfloat16,
+#     # )
+
+#     tokenizer = AutoTokenizer.from_pretrained(model_id)
+#     if tokenizer.pad_token is None:
+#         tokenizer.pad_token = tokenizer.eos_token
+
+#     model = prepare_model_for_kbit_training(model)
+
+#     lora_config = LoraConfig(
+#         task_type=TaskType.CAUSAL_LM,
+#         r=16,
+#         lora_alpha=32,
+#         lora_dropout=0.05,
+#         bias="none",
+#         # Target the attention and MLP projection layers
+#         target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
+#                         "gate_proj", "up_proj", "down_proj"],
+#     )
+
+#     model = get_peft_model(model, lora_config)
+#     model.print_trainable_parameters()
+
+#     return tokenizer, model
+
 def load_student_model(model_id: str):
-    print(f"Loading {model_id} in 4-bit for QLoRA...")
-
-    # bnb_config = BitsAndBytesConfig(
-    #     load_in_4bit=True,
-    #     bnb_4bit_use_double_quant=True,
-    #     bnb_4bit_quant_type="nf4",
-    #     bnb_4bit_compute_dtype=torch.bfloat16,
-    # )
-
-    model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    torch_dtype=torch.bfloat16,
-    device_map="auto",
-    trust_remote_code=True,
-    )
+    print(f"Loading {model_id} in bfloat16...")
 
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    model = prepare_model_for_kbit_training(model)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
+        trust_remote_code=True,
+    )
 
     lora_config = LoraConfig(
         task_type=TaskType.CAUSAL_LM,
@@ -202,7 +225,6 @@ def load_student_model(model_id: str):
         lora_alpha=32,
         lora_dropout=0.05,
         bias="none",
-        # Target the attention and MLP projection layers
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
                         "gate_proj", "up_proj", "down_proj"],
     )
