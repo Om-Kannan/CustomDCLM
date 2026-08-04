@@ -31,7 +31,7 @@ Return ONLY a JSON object with exactly these keys:
 """
 
 MODEL = "Qwen/Qwen2.5-14B-Instruct"
-TEST_FILE = "data/midcorpus.jsonl"      # <-- change if needed
+TEST_FILE = "./CustomDCLM/data/midcorpus.jsonl"   # <-- change if needed
 N_DOCS = 50
 
 print("Loading model...")
